@@ -19,8 +19,6 @@ namespace ExamplePlugin {
             Log.Init(Logger);
             Log.LogWarning($"Races plugin is awake");
 
-            ExamplePlugin.instance = this;
-
             // Attach hooks
             On.RoR2.NetworkUser.SetSurvivorPreferenceClient += NetworkUser_SetSurvivorPreferenceClient;
             On.RoR2.UserProfile.SetLoadout += UserProfile_SetLoadout;
@@ -37,11 +35,11 @@ namespace ExamplePlugin {
         ) {
             orig(self);
 
-            Log.LogWarning($"ExamplePlugin instance during setup: {instance}");
-
-            // List commands to add (no need for R2API)
-            var commands = new Command[] {
-                new SignInCommand(state)
+            // List of commands to add
+            var commands = new ICommand[] {
+                new SignInCommand(state),
+                new SignOutCommand(state),
+                new SetupRaceCommand(state),
             };
 
             foreach (var cmd in commands) {
@@ -88,12 +86,9 @@ namespace ExamplePlugin {
             //      null reference errors, but it works (though it doesn't actually
             //      display the selected character)
             Log.LogWarning($"Forcing survivor: {forced.Name}");
-            Log.LogWarning($"Plugin instance from state: {State.instance.pluginInstance}");
-            Log.LogWarning($"Plugin instance from static field: {instance}");
             orig(self, forced.Load());
         }
 
-        public static ExamplePlugin instance;
         static readonly State state = new();
         static Survivor forced = SurvivorTable.Captain;
     }
